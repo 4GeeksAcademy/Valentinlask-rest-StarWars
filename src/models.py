@@ -12,7 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(250), nullable=False)
     inscription_date = db.Column(db.String(250), nullable=False)
     addresses = db.relationship('Address', backref='user')
-
+    
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
 
