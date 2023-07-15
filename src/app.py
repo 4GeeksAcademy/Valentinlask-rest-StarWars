@@ -18,6 +18,9 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'Test0_Key1'
+jwt =  JWTManager(app)
+bcrypt = Bcrypt(app)
+
 app.url_map.strict_slashes = False
 
 db_url = os.getenv("DATABASE_URL")
@@ -104,6 +107,30 @@ def delete_user(user_id):
         return jsonify(message='User deleted successfully')
     else:
         return jsonify(message='User not found'), 404
+
+
+@app.route('/token', methods=['POST'])
+def get_token():
+  
+    email = request.json.get('email')
+    password = request.json.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
+    
+    login_user = User.query.filter_by(email = request.json['email']).one()
+    password_db = login_user.password
+    true_o_false = bcrypt.check_password_hash(password_db, password)
+
+    if true_o_false:
+        user_id = login_user.id
+        access_token = create_access_token(identity=user_id)
+        return {'access_token': access_token}, 200
+    
+    else:
+        return{'Error': 'Icorrect password0'}
+
+
 
 
 @app.route('/addresses')
